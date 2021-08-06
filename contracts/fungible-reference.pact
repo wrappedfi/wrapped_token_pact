@@ -5,6 +5,8 @@
   (implements fungible-v2)
 
   (defschema account-schema
+    name:string
+    symbol:string
     balance:decimal
     guard:guard)
 

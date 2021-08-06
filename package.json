@@ -1,0 +1,25 @@
+{
+  "name": "tokensoft_token_pact",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wrappedfi/tokensoft_token_pact.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wrappedfi/tokensoft_token_pact/issues"
+  },
+  "homepage": "https://github.com/wrappedfi/tokensoft_token_pact#readme",
+  "dependencies": {
+    "pact-lang-api": "^4.2.0"
+  }
+}
