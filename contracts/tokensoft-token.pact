@@ -32,20 +32,19 @@
       )
       (defcap REVOKE
         ()
-    
-        @doc " Let clawback by court order"
+
+        @doc "Can revoke tokens and move them to any account"
     
         (enforce-guard (at 'guard (coin.details "revoker-keyset")))
       )
       (defcap BLACKLIST
         ()
     
-        @doc "block transfers to certain addresses"
+        @doc "Can add principals to a blacklist that can prevent transfers"
     
         (enforce-guard (at 'guard (coin.details "blacklist-keyset")))
       )
     
-  
     (defcap DEBIT (sender:string)
       "Capability for managing debiting operations"
       (enforce-guard (at 'guard (read ledger sender)))
@@ -214,7 +213,25 @@
         (debit sender amount)
         (credit receiver receiver-guard amount))
       )
-  
+
+    (defschema blacklist
+      account:string
+      restricted:bool  
+    )
+    ;;TODO: finish restrictions
+    (defun transferRestriction:string
+      ( sender:string
+        receiver:string
+        amount:decimal
+      )
+      @doc " Transfer AMOUNT between accounts SENDER and RECEIVER. \
+           \ Fails if either SENDER or RECEIVER is in BLACKLIST."
+      @model [ (property (> amount 0.0))
+               (property (!= sender ""))
+               (property (!= receiver ""))
+               (property (!= sender receiver))
+             ]
+      )
   
     (defschema crosschain-schema
       @doc "Schema for yielded value in cross-chain transfers"
