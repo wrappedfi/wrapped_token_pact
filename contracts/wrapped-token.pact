@@ -128,7 +128,7 @@
   
   
     (defun precision:integer ()
-      12)
+      8)
   
     (defun debit:string (account:string amount:decimal)
       @doc "Debit AMOUNT from ACCOUNT balance"
@@ -214,23 +214,57 @@
         (credit receiver receiver-guard amount))
       )
 
-    (defschema blacklist
+    (defschema blacklist-schema
       account:string
       restricted:bool  
     )
+    (deftable blacklist:{blacklist-schema})
+
+    (defun blacklist-account:string (account:string guard:guard) BLACKLIST
+    ;;(enforce-guard guard)
+    (insert blacklist account
+      { "account":account 
+      , "restricted":true
+      })
+    "Account blacklisted"
+    )
+      
+    (defun is-blacklisted:bool (account:string)
+      (with-read ledger account
+        { "restricted" := true }
+        account
+        )
+      )  
+    (defun update-blacklist:bool (restricted:bool) BLACKLIST
+      (update blacklist account
+        { "restricted" :restricted }
+        )
+    )
+
+
     ;;TODO: finish restrictions
     (defun transferRestriction:string
       ( sender:string
         receiver:string
         amount:decimal
       )
-      @doc " Transfer AMOUNT between accounts SENDER and RECEIVER. \
-           \ Fails if either SENDER or RECEIVER is in BLACKLIST."
+      @doc "Test Transfer AMOUNT between accounts SENDER and RECEIVER. \
+           \ Fails if either SENDER or RECEIVER is in blacklist."
       @model [ (property (> amount 0.0))
-               (property (!= sender ""))
-               (property (!= receiver ""))
-               (property (!= sender receiver))
+               (property (!= is-blacklisted sender))
+               (property (!= is-blacklisted receiver))
              ]
+      )
+
+
+      (defun revoke:string REVOKE
+        ( revoke-address:string
+          amount:decimal
+        )
+        @doc "Revoke a balance from an address back to the caller's address"
+        @model [ (property (> amount 0.0))
+                 (property (!= revoke-address ""))
+               ]
       )
   
     (defschema crosschain-schema

@@ -1,6 +1,6 @@
 # Wrapped Token on Kadena Blockchain.
 
-The token attempts to implement the (currently in progress) KIP 5 standard.
+The token attempts to implement the  KIP 5 standard.
 
 # Role Based Access Control
 
