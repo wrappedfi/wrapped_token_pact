@@ -7,8 +7,6 @@
 (define-keyset 'revoker-keyset (read-keyset "revoker-keyset"))
 (define-keyset 'blacklist-keyset (read-keyset "blacklist-keyset"))
 
-
-
 (module wrappedToken GOV 
 
     @doc "Extends fungible-token-v2 with Wrapped.com capabilities"
@@ -23,26 +21,23 @@
   
     (deftable ledger:{account-schema})
   
-    (defcap GOV
-        ()
-    
-        @doc " Give the admin full access to call and upgrade the module. "
-    
-        (enforce-guard (at 'guard (coin.details "admin-keyset")))
-      )
+    (defcap GOV ()
+    "admin capability"
+    true)
+
       (defcap REVOKE
         ()
 
         @doc "Can revoke tokens and move them to any account"
     
-        (enforce-guard (at 'guard (coin.details "revoker-keyset")))
+        (enforce-guard (at 'guard ("revoker-keyset")))
       )
       (defcap BLACKLIST
         ()
     
         @doc "Can add principals to a blacklist that can prevent transfers"
     
-        (enforce-guard (at 'guard (coin.details "blacklist-keyset")))
+        (enforce-guard (at 'guard ("blacklist-keyset")))
       )
     
     (defcap DEBIT (sender:string)
@@ -256,7 +251,7 @@
              ]
       )
 
-
+            ;;TODO: Finish revoke 
       (defun revoke:string REVOKE
         ( revoke-address:string
           amount:decimal
