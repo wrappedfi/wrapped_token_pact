@@ -299,6 +299,7 @@
       guard:guard
     )
     (enforce-valid-account account)
+    (enforce-reserved account guard)
     (insert ledger account
       { "balance" : 0.0
       , "guard"   : guard
@@ -371,17 +372,23 @@
   (defun credit:string (account:string guard:guard amount:decimal)
     (require-capability (CREDIT account))
     (with-default-read ledger account
-      { "balance" : 0.0, "guard" : guard, "restricted" : false }
+      { "balance" : -1.0, "guard" : guard, "restricted" : false }
       { "balance" := balance
       , "guard" := retg
       , "restricted" := restricted
       }
-      (enforce (= retg guard) "account guards must match")
-      (write ledger account
-        { "balance" : (+ balance amount)
-        , "guard"   : retg
-        , "restricted" : restricted
-        }))
+
+      (let ((is-new
+               (if (= balance -1.0)
+                   (enforce-reserved account guard)
+                 false)))
+
+        (enforce (= retg guard) "account guards must match")
+        (write ledger account
+          { "balance" : (if is-new amount (+ balance amount))
+          , "guard"   : retg
+          , "restricted" : restricted
+          })))
   )
 
   (defschema xinfo source-chain:string)
