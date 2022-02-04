@@ -28,8 +28,6 @@ This repository contains the source code (written in [Pact](https://pactlang.org
 [![GitHub pull requests by-label](https://img.shields.io/github/issues-pr-raw/wrappedfi/wrapped_token_pact)](https://github.com/wrappedfi/wrapped_token_pact/pulls)
 [![GitHub Issues](https://img.shields.io/github/issues-raw/wrappedfi/wrapped_token_pact.svg)](https://github.com/wrappedfi/wrapped_token_pact/issues)
 
-The token implements the KIP 5 standard.
-
 ## Role Based Access Control
 
 The token has certain roles built into it to allow administrative actions. One or more keys can be granted each of the roles and a keyset can be granted multiple roles.  The following roles are available:
