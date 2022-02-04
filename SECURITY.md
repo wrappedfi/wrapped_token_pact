@@ -1,6 +1,6 @@
 # Security
 
-[Report a vulnerability](mailto:security@wrapped.com)
+[Report a vulnerability](mailto:security@tokensoft.io)
 
 ## Introduction
 
