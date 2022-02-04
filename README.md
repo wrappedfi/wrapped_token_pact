@@ -8,6 +8,8 @@
 
 This repository contains the source code (written in [Pact](https://pactlang.org/)) for assets on [Kadena](https://kadena.io/).
 
+It has been [audited](ncc-security-audit.pdf) by [NCC Group](https://www.nccgroup.com/).
+
 <!-- row 1 - status -->
 
 [![GitHub contributors](https://img.shields.io/github/contributors/wrappedfi/wrapped_token_pact)](https://github.com/wrappedfi/wrapped_token_pact/graphs/contributors)
