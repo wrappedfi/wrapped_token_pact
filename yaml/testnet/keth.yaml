@@ -1,0 +1,35 @@
+codeFile: ../../keth.pact
+signers:
+  - public: 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
+data:
+  ns: "user"
+  wrapped-ns-user:
+  upgrade: false
+  burner:
+    keys:
+      - 31631f9db6bf9085a0bdd71d34e1b7001c8c7c7b187710e86eb2dd4104798c8b
+    pred: keys-all
+  minter:
+    keys:
+      - 1d48b58e835d90182ced21cbd2be5801a1d1dbffda484b8a338293216da67603
+    pred: keys-all
+  revoker:
+    keys:
+      - 44c55dc90dc9d85662a2960203fa9dd11f8bf471b3b9f8e3f0156493c7b25a43
+    pred: keys-all
+  restrict:
+    keys:
+      - a66a7b652dcc373092d5dcaf3257190875abe8fc145f40ab5578efa4b9dd44f4
+    pred: keys-all
+  module-admin:
+    keys:
+      - 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
+    pred: keys-all
+networkId: testnet04
+nonce: install keth
+publicMeta:
+  chainId: "0"
+  sender: "k:16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0"
+  gasLimit: 150000
+  gasPrice: 0.0000001
+  ttl: 600

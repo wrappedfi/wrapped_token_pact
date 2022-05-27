@@ -1,0 +1,22 @@
+codeFile: ../../wrapped-ns.pact
+signers:
+  - public: 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
+  - public: dfb16b13e4032a6878fd98506b22cb0d6e5932c541e656b7ee5d69d72e6eb76e
+data:
+  ns: "user"
+  wrapped-ns-user:
+    keys:
+      - 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
+    pred: keys-all
+  wrapped-ns-admin:
+    keys:
+      - 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
+    pred: keys-all
+networkId: testnet04
+nonce: install namespace
+publicMeta:
+  chainId: "0"
+  sender: "k:16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0"
+  gasLimit: 6000
+  gasPrice: 0.0000001
+  ttl: 600
