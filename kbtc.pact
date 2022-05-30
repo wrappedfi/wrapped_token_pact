@@ -1,7 +1,7 @@
 (namespace (read-msg 'ns))
 (module kBTC GOVERNANCE
 
-  @doc "Fungible token for Wrapped kBTC"
+  @doc "Fungible token for Wrapped Bitcoin"
   @model [
 
     ;; conserves-mass

@@ -1,30 +1,42 @@
 codeFile: ../../kbtc.pact
 signers:
-  - public: 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
+  - public: 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+  - public: 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
+  - public: 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
 data:
   ns: "user"
   wrapped-ns-user:
   upgrade: false
   burner:
     keys:
-      - 31631f9db6bf9085a0bdd71d34e1b7001c8c7c7b187710e86eb2dd4104798c8b
-    pred: keys-all
+      - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+      - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
+      - 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
+    pred: keys-2
   minter:
     keys:
-      - 1d48b58e835d90182ced21cbd2be5801a1d1dbffda484b8a338293216da67603
-    pred: keys-all
+      - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+      - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
+      - 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
+    pred: keys-2
   revoker:
     keys:
-      - 44c55dc90dc9d85662a2960203fa9dd11f8bf471b3b9f8e3f0156493c7b25a43
-    pred: keys-all
+      - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+      - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
+      - 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
+    pred: keys-2
   restrict:
     keys:
-      - a66a7b652dcc373092d5dcaf3257190875abe8fc145f40ab5578efa4b9dd44f4
-    pred: keys-all
+      - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+      - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
+      - 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
+    pred: keys-2
   module-admin:
     keys:
-      - 16e461ea50647c1b24183a4fb188cc6b2e84e721dc584cef96357a5a2d98c3a0
-    pred: keys-all
+      - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+      - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
+      - 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
+    pred: keys-2
 networkId: testnet04
 nonce: install kbtc
 publicMeta:

@@ -1,7 +1,7 @@
 (namespace (read-msg 'ns))
 (module kETH GOVERNANCE
 
-  @doc "Fungible token for Wrapped kETH"
+  @doc "Fungible token for Wrapped Ether"
   @model [
 
     ;; conserves-mass
