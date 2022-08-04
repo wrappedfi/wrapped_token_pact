@@ -1,0 +1,446 @@
+# FIXME
+;;
+;; load
+;;
+
+(begin-tx)
+
+;; deps
+
+(load "deps/fungible-v2.pact")
+(load "deps/mock-ns.pact")
+
+;; wrapped namespace
+
+(env-data
+  { 'ns: 'wrapped
+  , 'wrapped-ns-user: ['ns-user]
+  , 'wrapped-ns-admin: ['ns-admin]
+  })
+(load "wrapped-ns.pact")
+
+;; wrapped-util
+
+(env-data
+  { 'ns: 'wrapped
+  , 'wrapped-role-admin: ['role-admin]
+  , 'wrapped-util-admin: ['util-admin]
+  , 'upgrade: false
+  })
+(env-keys ['ns-user])
+(load "wrapped-token-v1.pact")
+(load "wrapped-util.pact")
+(typecheck "wrapped.wrapped-util")
+
+;; kBTC
+
+(env-data
+  { 'ns: 'wrapped
+  , 'burner: ['burner]
+  , 'minter: ['minter]
+  , 'revoker: ['revoker]
+  , 'module-admin: ['module-admin]
+  , 'restrict: ['restrict]
+  , 'upgrade: false
+  })
+(env-keys [])
+(load "kbtc.pact")
+(verify "wrapped.kBTC")
+
+(commit-tx)
+
+;;
+;; test upgrades
+;;
+
+(begin-tx)
+(env-data
+  { 'ns: 'wrapped
+  , 'upgrade: true })
+(env-keys ['ns-user, 'util-admin])
+(load "wrapped-util.pact")
+(env-keys ['ns-user, 'module-admin])
+(load "kbtc.pact")
+(rollback-tx)
+
+;;
+;; fungible-v2 test
+;;
+
+(begin-tx)
+(load "fungible-test/fungible.repl")
+(use fungible-v2-test)
+(env-sigs
+  [{ 'key: 'minter ,
+     'caps: [(wrapped.kBTC.MINT FUNDER_ACCT FUNDER_BALANCE)]}])
+(wrapped.kBTC.mint FUNDER_ACCT FUNDER_GUARD FUNDER_BALANCE)
+(module kbtc-helper G
+  (defcap G () true)
+  (implements fungible-test-helper)
+  (defun setup-rotate:bool (account:string old-key:string)
+    (env-sigs [{"key": old-key,"caps":[(wrapped.kBTC.ROTATE account)]}])
+    true
+  )
+)
+(commit-tx)
+(fungible-v2-test.suite wrapped.kBTC kbtc-helper "")
+
+;;
+;; wrapped-token-v1 tests
+;;
+
+(begin-tx "============= mint/wrapped setup ==============")
+(use wrapped.kBTC)
+(env-data { 'carol: ['carol], 'dinesh: ['dinesh]})
+(env-keys [])
+(expect-failure "mint no sig"
+  "capability not installed"
+  (mint "Carol" (read-keyset 'carol ) 1000.0))
+(env-sigs
+  [{ 'key: 'other ,
+     'caps: [ (MINT "Carol" 1000.0) ]
+    }])
+(expect-failure "mint bad sig"
+  "Keyset failure"
+  (mint "Carol" (read-keyset 'carol ) 1000.0))
+(env-sigs
+  [{ 'key: 'minter ,
+     'caps: [ (MINT "Carol" 1000.0)
+              (MINT "Dinesh" 1000.0)
+              (MINT "Dinesh" 100.000000009)
+              (MINT "Dinesh" 0.0)
+              (MINT "Dinesh" -1.0)
+            ]
+    }])
+(expect "mint success"
+  "Mint succeeded"
+  (mint "Carol" (read-keyset 'carol ) 1000.0))
+(expect-failure "mint exact amount"
+  "capability not installed"
+  (mint "Dinesh" (read-keyset 'dinesh ) 100.0))
+(expect-failure "mint precision"
+  "precision violation"
+  (mint "Dinesh" (read-keyset 'dinesh ) 100.000000009))
+(expect-failure "mint zero"
+  "non-zero"
+  (mint "Dinesh" (read-keyset 'dinesh ) 0.0))
+(expect-failure "mint neg"
+  "non-zero"
+  (mint "Dinesh" (read-keyset 'dinesh ) -1.0))
+
+(expect "mint success dinesh"
+  "Mint succeeded"
+  (mint "Dinesh" (read-keyset 'dinesh ) 1000.0))
+(expect "mint events"
+  [ {"name": "wrapped.kBTC.MINT","params": ["Carol" 1000.0]}
+    {"name": "wrapped.kBTC.TRANSFER","params": ["" "Carol" 1000.0]}
+    {"name": "wrapped.kBTC.MINT","params": ["Dinesh" 1000.0]}
+    {"name": "wrapped.kBTC.TRANSFER","params": ["" "Dinesh" 1000.0]}
+  ]
+  (map (remove 'module-hash ) (env-events true)))
+(expect "Carol balance mint" 1000.0 (get-balance "Carol"))
+(expect "Dinesh balance mint" 1000.0 (get-balance "Dinesh"))
+
+(commit-tx)
+
+
+(begin-tx "=================== burn ====================")
+(use wrapped.kBTC)
+(expect-failure "burn no sig"
+  "capability not installed"
+  (burn "Carol" 1000.0))
+(env-sigs
+  [{ 'key: 'other ,
+     'caps: [ (BURN "Carol" 1000.0) ]
+    }])
+(expect-failure "bur bad sig"
+  "Keyset failure"
+  (burn "Carol" 1000.0))
+(env-sigs
+  [{ 'key: 'burner ,
+     'caps: [ (BURN "Carol" 100.0)
+              (BURN "Dinesh" 200.0)
+              (BURN "Dinesh" 100.000000009)
+              (BURN "Dinesh" 0.0)
+              (BURN "Dinesh" -1.0)
+            ]
+    }])
+(expect "burn success"
+  "Burn succeeded"
+  (burn "Carol" 100.0))
+(expect-failure "burn exact amount"
+  "capability not installed"
+  (burn "Dinesh" 99.0))
+(expect-failure "burn precision"
+  "precision violation"
+  (burn "Dinesh" 100.000000009))
+(expect-failure "burn zero"
+  "non-zero"
+  (burn "Dinesh" 0.0))
+(expect-failure "burn neg"
+  "non-zero"
+  (burn "Dinesh" -1.0))
+
+(expect "burn success dinesh"
+  "Burn succeeded"
+  (burn "Dinesh" 200.0))
+(expect "burn events"
+  [ {"name": "wrapped.kBTC.BURN","params": ["Carol" 100.0]}
+    {"name": "wrapped.kBTC.TRANSFER","params": ["Carol" "" 100.0]}
+    {"name": "wrapped.kBTC.BURN","params": ["Dinesh" 200.0]}
+    {"name": "wrapped.kBTC.TRANSFER","params": ["Dinesh" "" 200.0]}
+  ]
+  (map (remove 'module-hash ) (env-events true)))
+(expect "Carol balance burn" 900.0 (get-balance "Carol"))
+(expect "Dinesh balance burn" 800.0 (get-balance "Dinesh"))
+(rollback-tx)
+
+
+(begin-tx "=================== restriction ===================")
+(use wrapped.kBTC)
+(expect-failure "restrict no sig"
+  "capability not installed"
+  (manage-restriction "Dinesh" true))
+(env-sigs
+  [{ 'key: 'other ,
+     'caps: [ (MANAGE_RESTRICTION "Dinesh" true) ]
+    }])
+(expect-failure "restrict bad sig"
+  "Keyset failure"
+  (manage-restriction "Dinesh" true))
+(env-sigs
+  [{ 'key: 'restrict ,
+     'caps: [ (MANAGE_RESTRICTION "Dinesh" true)
+              (MANAGE_RESTRICTION "Dinesh" false) ]
+   }
+   { 'key: 'dinesh ,
+     'caps: [ (TRANSFER "Dinesh" "Carol" 2.0) ]
+   }
+   { 'key: 'carol ,
+     'caps: [ (TRANSFER "Carol" "Dinesh" 2.0) ]
+   }])
+
+(expect "restrict success"
+  "Write succeeded"
+  (manage-restriction "Dinesh" true))
+(expect "restrict events"
+  [ {"name": "wrapped.kBTC.MANAGE_RESTRICTION","params": ["Dinesh" true] } ]
+  (map (remove 'module-hash ) (env-events true)))
+
+(expect-failure "Transfer restriction sender"
+  "Account Restricted"
+  (transfer "Dinesh" "Carol" 1.0))
+
+(expect-failure "Transfer restriction receiver"
+  "Account Restricted"
+  (transfer "Carol" "Dinesh" 1.0))
+
+(expect "unrestrict success"
+  "Write succeeded"
+  (manage-restriction "Dinesh" false))
+(expect "Transfer de-restriction sender"
+  "Write succeeded"
+  (transfer "Dinesh" "Carol" 1.0))
+(expect "Transfer de-restriction receiver"
+  "Write succeeded"
+  (transfer "Carol" "Dinesh" 1.0))
+(rollback-tx)
+
+
+(begin-tx "========================= revoke =======================")
+(use wrapped.kBTC)
+(expect-failure "revoke no sig"
+  "capability not installed"
+  (revoke "Carol" "Dinesh" 11.0))
+(env-sigs [
+  { 'key: 'other, 'caps: [(REVOKE "Carol" "Dinesh" 11.0)]}
+  ])
+(expect-failure "revoke bad sig"
+  "Keyset failure"
+  (revoke "Carol" "Dinesh" 11.0))
+(env-sigs [
+  { 'key: 'revoker, 'caps: [(REVOKE "Carol" "Dinesh" 11.0)]}
+  ])
+(expect-failure "revoke bad amount"
+  "capability not installed"
+  (revoke "Carol" "Dinesh" 10.0))
+(expect-failure "revoke not restricted"
+  "Account Unrestricted"
+  (revoke "Carol" "Dinesh" 11.0))
+(env-sigs [
+  { 'key: 'restrict, 'caps: [(MANAGE_RESTRICTION "Carol" true)]}
+  { 'key: 'revoker, 'caps: [(REVOKE "Carol" "Dinesh" 11.0)]}
+  ])
+(expect "restrict success"
+  "Write succeeded"
+  (manage-restriction "Carol" true))
+(expect "query" true (is-restricted "Carol"))
+(expect "revoke success"
+  "Write succeeded"
+  (revoke "Carol" "Dinesh" 11.0))
+(expect "revoke events"
+  [ {"name": "wrapped.kBTC.MANAGE_RESTRICTION","params": ["Carol" true]}
+    {"name": "wrapped.kBTC.REVOKE","params": ["Carol" "Dinesh" 11.0]}
+    {"name": "wrapped.kBTC.TRANSFER","params": ["Carol" "Dinesh" 11.0]} ]
+  (map (remove 'module-hash ) (env-events true)))
+(expect "Carol balance revoke" 989.0 (get-balance "Carol"))
+(expect "Dinesh balance revoke" 1011.0 (get-balance "Dinesh"))
+(rollback-tx)
+
+
+(begin-tx "==================== update-role =====================")
+(use wrapped.wrapped-token-v1)
+(use wrapped.kBTC)
+(env-data { 'k: ['k ] } )
+(expect-failure "update-role no sig"
+  "capability not installed"
+  (update-role ROLE_BURNER (read-keyset 'k )))
+(env-sigs [
+  { 'key: 'other, 'caps: [(UPDATE_ROLE ROLE_BURNER)]}
+  ])
+(expect-failure "update-role bad sig"
+  "Keyset failure"
+  (update-role ROLE_BURNER (read-keyset 'k )))
+(env-sigs [
+  { 'key: 'module-admin, 'caps: [(UPDATE_ROLE ROLE_BURNER)]}
+  ])
+(expect "update-role success"
+  "Write succeeded"
+  (update-role ROLE_BURNER (read-keyset 'k )))
+(expect "update-role events"
+  [ {"name": "wrapped.kBTC.UPDATE_ROLE","params": ["burner"]} ]
+  (map (remove 'module-hash ) (env-events true)))
+(expect "query" { 'guard: (read-keyset 'k ) } (get-role ROLE_BURNER))
+(env-sigs [
+  { 'key: 'burner, 'caps: [(BURN "Carol" 1.0)]}
+  ])
+(expect-failure "burn failure after rotate"
+  "Keyset failure"
+  (burn "Carol" 1.0))
+(env-sigs [
+  { 'key: 'k, 'caps: [(BURN "Carol" 1.0)]}
+  ])
+(expect "burn success after rotate"
+  "Burn succeeded"
+  (burn "Carol" 1.0))
+(rollback-tx)
+
+
+;; ======================================================
+;; test single-key naming protocol
+;; ======================================================
+
+(begin-tx)
+(use wrapped.kBTC)
+(env-data
+  {'k: ["5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"]
+  ,'k2:
+   {'keys:["5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"]
+   ,'pred:"keys-any"}
+  ,'k3:
+   {'keys:["5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4", "5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"]
+   ,'pred:"keys-all"}
+  })
+(env-sigs
+  [{'key:'carol
+   ,'caps:
+    [(TRANSFER "Carol"
+      "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"
+      0.04),
+     (TRANSFER "Carol"
+      "c:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+      0.04),
+     (TRANSFER "Carol"
+      "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+      0.02)
+      ]}])
+
+(expect-failure
+  "single-key mismatch, create-account"
+  "Single-key account protocol violation"
+  (create-account
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"
+    (read-keyset 'k)))
+
+(expect-failure
+  "single-key mismatch, transfer-create"
+  "Single-key account protocol violation"
+  (transfer-create
+
+    "Carol"
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"
+    (read-keyset 'k)
+    0.02))
+
+(expect-failure
+  "single-key mismatch, transfer-create"
+  "Single-key account protocol violation"
+  (transfer-create
+
+    "Carol"
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"
+    (read-keyset 'k2 )
+    0.02))
+
+(expect-failure
+  "multi-key, transfer-create"
+  "Single-key account protocol violation"
+  (transfer-create
+
+    "Carol"
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"
+    (read-keyset 'k3 )
+    0.02))
+
+(expect-failure
+  "bad protocol, create-account"
+  "Unrecognized reserved protocol: c"
+  (create-account
+    "c:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+    (read-keyset 'k2)))
+
+(expect-failure
+  "bad protocol, transfer-create"
+  "Unrecognized reserved protocol: c"
+  (transfer-create "Carol"
+    "c:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+    (read-keyset 'k2) 0.04))
+
+(expect-failure
+  "single-key mismatch, create-account"
+  "Single-key account protocol violation"
+  (create-account
+
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f3"
+    (read-keyset 'k)))
+
+(expect
+  "single-key success, create-account"
+  "Write succeeded"
+  (create-account
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+    (read-keyset 'k)))
+
+(rollback-tx)
+
+(begin-tx)
+(use wrapped.kBTC)
+(env-data
+  {'k: ["5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"]})
+(env-sigs
+  [{'key:'carol
+   ,'caps:
+    [(TRANSFER "Carol"
+      "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+      0.02)]}])
+
+(expect
+  "single-key success, transfer-create"
+  "Write succeeded"
+  (transfer-create
+
+    "Carol"
+    "k:5b4c9fc5207fcf700a5fbcb48c261820149c8ecd52e005282ed9e3f5febcd1f4"
+    (read-keyset 'k)
+    0.02))
+(rollback-tx)

@@ -1,7 +1,7 @@
-(namespace (read-msg 'ns))
-(module kBTC GOVERNANCE
+(namespace (read-msg 'ns)) 
+(module kETH GOVERNANCE
 
-  @doc "Fungible token for Wrapped kBTC"
+  @doc "Fungible token for Wrapped kETH"
   @model [
 
     ;; conserves-mass

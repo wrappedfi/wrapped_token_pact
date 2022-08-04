@@ -1,7 +1,7 @@
-(namespace (read-msg 'ns))
-(module kBTC GOVERNANCE
+(namespace (read-msg 'ns)) 
+(module kUSD GOVERNANCE
 
-  @doc "Fungible token for Wrapped kBTC"
+  @doc "Fungible token for Wrapped kUSD"
   @model [
 
     ;; conserves-mass
