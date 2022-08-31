@@ -1,0 +1,13 @@
+codeFile: ../../wrapped-token-v1.pact
+signers:
+  - public: 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
+data:
+  ns: "free"
+networkId: testnet04
+nonce: install wrapped-token-v1
+publicMeta:
+  chainId: "1"
+  sender: "k:4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a"
+  gasLimit: 150000
+  gasPrice: 0.0000001
+  ttl: 600
