@@ -1,6 +1,6 @@
 codeFile: ../../usd.pact
 signers:
-  - public: c63f75bff0d31858712a9cfaa36ae2ebe0405eb5d639f921ca75ec4a2b168c93
+  - public: 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
 data:
   ns: "user"
   wrapped-ns-user:
