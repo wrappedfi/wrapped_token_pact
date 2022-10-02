@@ -1,8 +1,8 @@
-code: (free.kBTC.mint "k:4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a" (read-keyset 'keyset) 1000.0)
+code: (wrapped.kBTC.mint "k:4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a" (read-keyset 'keyset) 1000.0)
 signers:
   - public: 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
     caps:
-      - name: free.kBTC.MINT
+      - name: wrapped.kBTC.MINT
         args:
           [
             "k:4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a",
@@ -12,7 +12,7 @@ signers:
         args: []
   - public: 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
     caps:
-      - name: free.kBTC.MINT
+      - name: wrapped.kBTC.MINT
         args:
           [
             "k:4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a",
