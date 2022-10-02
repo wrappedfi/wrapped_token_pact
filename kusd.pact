@@ -69,11 +69,11 @@
   ]
 
   (implements fungible-v2)
-  (implements free.wrapped-token-v1)
-  (use free.wrapped-token-v1
+  (implements wrapped.wrapped-token-v1)
+  (use wrapped.wrapped-token-v1
     [ ROLE_MODULE_ADMIN ROLE_BURNER ROLE_MINTER
       ROLE_REVOKER ROLE_RESTRICT ])
-  (use free.wrapped-util)
+  (use wrapped.wrapped-util)
 
   ;;
   ;; tables/schemas

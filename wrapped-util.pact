@@ -3,12 +3,12 @@
 
 (module wrapped-util GOVERNANCE
 
-  (use free.wrapped-token-v1
+  (use wrapped.wrapped-token-v1
     [ ROLE_MODULE_ADMIN ROLE_BURNER ROLE_MINTER
       ROLE_REVOKER ROLE_RESTRICT ])
 
   (defcap GOVERNANCE ()
-    (enforce-keyset "free.wrapped-util-admin"))
+    (enforce-keyset "wrapped.wrapped-util-admin"))
 
   (defun all-roles ()
     [ ROLE_MODULE_ADMIN
@@ -121,5 +121,5 @@
 
 (if (read-msg 'upgrade)
   ["upgrade"]
-  [ (define-keyset "free.wrapped-util-admin" ) ]
+  [ (define-keyset "wrapped.wrapped-util-admin" ) ]
 )
