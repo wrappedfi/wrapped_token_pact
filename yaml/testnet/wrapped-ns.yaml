@@ -5,13 +5,13 @@ signers:
   - public: 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
 data:
   ns: "wrapped"
-  free.wrapped-ns-user:
+  wrapped.wrapped-ns-user:
     keys:
       - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
       - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
       - 484fec87708033a9dacb8b9e58111ab74069ba3b8f61103f2ef06de72721313d
     pred: keys-2
-  free.wrapped-ns-admin:
+  wrapped.wrapped-ns-admin:
     keys:
       - 4c5d103ca8b50c2f64b05bf48e8c671b877c15aeeba4efe2313e9969df7b7b9a
       - 09ff0969b7d16c24c800d469dc718bcaa0786acd391bd3e2ab2459124c06dede
